@@ -1,0 +1,83 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xnetworks.azure.platform.upbound.io
+  labels:
+    provider: azure
+spec:
+  compositeTypeRef:
+    apiVersion: azure.platform.upbound.io/v1alpha1
+    kind: XNetwork
+  patchSets:
+    - name: location
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.location
+          toFieldPath: spec.forProvider.location
+    - name: network-id
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.id
+          toFieldPath: metadata.labels[azure.platform.upbound.io/network-id]
+  resources:
+    - name: resource-group
+      base:
+        apiVersion: azure.upbound.io/v1beta1
+        kind: ResourceGroup
+      patches:
+        - type: PatchSet
+          patchSetName: location
+        - type: PatchSet
+          patchSetName: network-id
+        - fromFieldPath: spec.id
+          toFieldPath: metadata.name
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-rg"
+    - name: virtual-network
+      base:
+        apiVersion: network.azure.upbound.io/v1beta1
+        kind: VirtualNetwork
+        spec:
+          forProvider:
+            resourceGroupNameSelector:
+              matchControllerRef: true
+            addressSpace:
+              - 192.168.0.0/16
+      patches:
+        - type: PatchSet
+          patchSetName: location
+        - type: PatchSet
+          patchSetName: network-id
+        - fromFieldPath: spec.id
+          toFieldPath: metadata.name
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-vnet"
+    - name: subnet
+      base:
+        apiVersion: network.azure.upbound.io/v1beta1
+        kind: Subnet
+        spec:
+          forProvider:
+            resourceGroupNameSelector:
+              matchControllerRef: true
+            virtualNetworkNameSelector:
+              matchControllerRef: true
+            addressPrefixes:
+              - 192.168.1.0/24
+            serviceEndpoints:
+              - Microsoft.Sql
+      patches:
+        - type: PatchSet
+          patchSetName: location
+        - type: PatchSet
+          patchSetName: network-id
+        - fromFieldPath: spec.id
+          toFieldPath: metadata.name
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-sn"

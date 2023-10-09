@@ -1,0 +1,7 @@
+apiVersion: azure.platform.upbound.io/v1alpha1
+kind: XNetwork
+metadata:
+  name: upbound-azure-network
+spec:
+  id: upbound-azure-network
+  location: Switzerland North
