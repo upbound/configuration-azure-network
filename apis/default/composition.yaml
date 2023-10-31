@@ -4,38 +4,48 @@ metadata:
   name: xnetworks.azure.platform.upbound.io
   labels:
     provider: azure
+    type: basic
 spec:
+  writeConnectionSecretsToNamespace: upbound-system
   compositeTypeRef:
     apiVersion: azure.platform.upbound.io/v1alpha1
     kind: XNetwork
   patchSets:
-    - name: location
+    - name: providerConfigRef
       patches:
         - type: FromCompositeFieldPath
-          fromFieldPath: spec.location
-          toFieldPath: spec.forProvider.location
+          fromFieldPath: spec.parameters.providerConfigName
+          toFieldPath: spec.providerConfigRef.name
+    - name: deletionPolicy
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.parameters.deletionPolicy
+          toFieldPath: spec.deletionPolicy
     - name: network-id
       patches:
         - type: FromCompositeFieldPath
-          fromFieldPath: spec.id
+          fromFieldPath: spec.parameters.id
           toFieldPath: metadata.labels[azure.platform.upbound.io/network-id]
+    - name: region
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.parameters.region
+          toFieldPath: spec.forProvider.location
   resources:
-    - name: resource-group
+    - name: resourceGroup
       base:
         apiVersion: azure.upbound.io/v1beta1
         kind: ResourceGroup
       patches:
         - type: PatchSet
-          patchSetName: location
+          patchSetName: providerConfigRef
+        - type: PatchSet
+          patchSetName: deletionPolicy
         - type: PatchSet
           patchSetName: network-id
-        - fromFieldPath: spec.id
-          toFieldPath: metadata.name
-          transforms:
-            - type: string
-              string:
-                fmt: "%s-rg"
-    - name: virtual-network
+        - type: PatchSet
+          patchSetName: region
+    - name: virtualNetwork
       base:
         apiVersion: network.azure.upbound.io/v1beta1
         kind: VirtualNetwork
@@ -47,10 +57,14 @@ spec:
               - 192.168.0.0/16
       patches:
         - type: PatchSet
-          patchSetName: location
+          patchSetName: providerConfigRef
+        - type: PatchSet
+          patchSetName: deletionPolicy
         - type: PatchSet
           patchSetName: network-id
-        - fromFieldPath: spec.id
+        - type: PatchSet
+          patchSetName: region
+        - fromFieldPath: spec.parameters.id
           toFieldPath: metadata.name
           transforms:
             - type: string
@@ -72,10 +86,12 @@ spec:
               - Microsoft.Sql
       patches:
         - type: PatchSet
-          patchSetName: location
+          patchSetName: providerConfigRef
+        - type: PatchSet
+          patchSetName: deletionPolicy
         - type: PatchSet
           patchSetName: network-id
-        - fromFieldPath: spec.id
+        - fromFieldPath: spec.parameters.id
           toFieldPath: metadata.name
           transforms:
             - type: string

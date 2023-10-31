@@ -1,2 +1,3 @@
 # configuration-azure-network
-Network fabric configuration
+
+Azure Network Configuration is reusable Configuration designed to be primarily used in higher level Configurations.
