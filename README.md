@@ -11,8 +11,8 @@ The core components of a custom API in [Crossplane](https://docs.crossplane.io/v
 
 In this specific configuration, the [] API contains:
 
-- **an [](/apis/definition.yaml) custom resource type.**
-- **Composition of the [] resources:** Configured in [/apis/composition.yaml](/apis/composition.yaml), it provisions an [] cluster and fundamental security and networking resources in the `upbound-system` namespace.
+- **an [Azure Network](/apis/definition.yaml) custom resource type.**
+- **Composition of the network resources:** Configured in [/apis/composition.yaml](/apis/composition.yaml), it provisions fundamental security and networking resources in the `upbound-system` namespace.
 
 This repository contains an Composite Resource (XR) file.
 
