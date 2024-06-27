@@ -27,7 +27,11 @@ XPKG_REG_ORGS_NO_PROMOTE ?= xpkg.upbound.io/upbound
 XPKGS = $(PROJECT_NAME)
 -include build/makelib/xpkg.mk
 
+CROSSPLANE_VERSION = 1.16.0-up.1
+CROSSPLANE_CHART_REPO = https://charts.upbound.io/stable
+CROSSPLANE_CHART_NAME = universal-crossplane
 CROSSPLANE_NAMESPACE = upbound-system
+KIND_CLUSTER_NAME = uptest-$(PROJECT_NAME)
 -include build/makelib/local.xpkg.mk
 -include build/makelib/controlplane.mk
 
@@ -45,8 +49,7 @@ fallthrough: submodules
 	@echo Initial setup complete. Running make again . . .
 	@make
 
-# Update the submodules, such as the common build scripts.
-submodules:
+submodules: ## Update the submodules, such as the common build scripts.
 	@git submodule sync
 	@git submodule update --init --recursive
 
@@ -56,24 +59,34 @@ build.init: $(UP)
 
 # ====================================================================================
 # End to End Testing
+#
+check:
+ifndef UPTEST_CLOUD_CREDENTIALS
+	@$(INFO) Please export UPTEST_CLOUD_CREDENTIALS
+	@$(FAIL)
+endif
 
 # This target requires the following environment variables to be set:
 # - UPTEST_CLOUD_CREDENTIALS, cloud credentials for the provider being tested, e.g. export UPTEST_CLOUD_CREDENTIALS=$(cat azure.json)
+SKIP_DELETE ?=
 uptest: $(UPTEST) $(KUBECTL) $(KUTTL)
 	@$(INFO) running automated tests
-	@KUBECTL=$(KUBECTL) KUTTL=$(KUTTL) CROSSPLANE_NAMESPACE=$(CROSSPLANE_NAMESPACE) $(UPTEST) e2e examples/network-xr.yaml --setup-script=test/setup.sh --default-timeout=2400 || $(FAIL)
+	@KUBECTL=$(KUBECTL) KUTTL=$(KUTTL) CROSSPLANE_NAMESPACE=$(CROSSPLANE_NAMESPACE) $(UPTEST) e2e examples/network-xr.yaml --data-source="${UPTEST_DATASOURCE_PATH}" --setup-script=test/setup.sh --default-timeout=2400 $(SKIP_DELETE) || $(FAIL)
 	@$(OK) running automated tests
 
 # This target requires the following environment variables to be set:
 # - UPTEST_CLOUD_CREDENTIALS, cloud credentials for the provider being tested, e.g. export UPTEST_CLOUD_CREDENTIALS=$(cat azure.json)
-e2e: build controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME) uptest
+e2e: check build controlplane.down controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME) uptest ## Run uptest together with all dependencies. Use `make e2e SKIP_DELETE=--skip-delete` to skip deletion of resources.
 
-render:
+render: ## Crossplane render
 	crossplane beta render examples/network-xr.yaml apis/default/composition.yaml examples/function/function.yaml -r
 
-yamllint:
+yamllint: ## Static yamllint check
 	@$(INFO) running yamllint
 	@yamllint ./apis || $(FAIL)
 	@$(OK) running yamllint
 
-.PHONY: uptest e2e render yamllint
+help.local:
+	@grep -E '^[a-zA-Z_-]+.*:.*?## .*$$' Makefile | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+.PHONY: uptest e2e render yamllint help.local
