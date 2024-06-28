@@ -30,6 +30,16 @@
       "depNameTemplate": "upbound/uptest",
     }, {
       "customType": "regex",
+      "description": "Bump Crossplane(UXP) version in the Makefile",
+      "fileMatch": ["^Makefile$"],
+      "matchStrings": [
+        "CROSSPLANE_VERSION = (?<currentValue>.*?)\\n"
+      ],
+      "extractVersionTemplate": "^v(?<version>.*)$",
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "upbound/universal-crossplane",
+    }, {
+      "customType": "regex",
       "description": "Bump providers/functions/configurations in crossplane.yaml",
       "fileMatch": ["crossplane.yaml"],
       "matchStrings": [
