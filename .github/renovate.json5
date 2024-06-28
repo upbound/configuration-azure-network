@@ -35,8 +35,9 @@
       "matchStrings": [
         "CROSSPLANE_VERSION = (?<currentValue>.*?)\\n"
       ],
-      "extractVersionTemplate": "^v(?<version>.*)$",
       "datasourceTemplate": "github-releases",
+      "versioningTemplate": "regex:^v?(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-up.1$",
+      "extractVersionTemplate": "^v(?<version>.*)$",
       "depNameTemplate": "upbound/universal-crossplane",
     }, {
       "customType": "regex",
