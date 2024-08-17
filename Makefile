@@ -14,6 +14,7 @@ PLATFORMS ?= linux_amd64
 UP_VERSION = v0.31.0
 UP_CHANNEL = stable
 UPTEST_VERSION = v0.11.1
+CROSSPLANE_CLI_VERSION = v1.16.0
 
 -include build/makelib/k8s_tools.mk
 # ====================================================================================
@@ -78,8 +79,13 @@ uptest: $(UPTEST) $(KUBECTL) $(KUTTL)
 # - UPTEST_CLOUD_CREDENTIALS, cloud credentials for the provider being tested, e.g. export UPTEST_CLOUD_CREDENTIALS=$(cat azure.json)
 e2e: check build controlplane.down controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME) uptest ## Run uptest together with all dependencies. Use `make e2e SKIP_DELETE=--skip-delete` to skip deletion of resources.
 
-render: ## Crossplane render
-	crossplane beta render examples/network-xr.yaml apis/default/composition.yaml examples/function/function.yaml -r
+render: $(CROSSPLANE_CLI) ## Crossplane render
+	$(CROSSPLANE_CLI) beta render examples/network-xr.yaml apis/default/composition.yaml examples/function/function.yaml -r
+
+render.test: $(CROSSPLANE_CLI) $(KCL)
+	$(CROSSPLANE_CLI) beta render examples/network-xr.yaml apis/default/composition.yaml examples/function/function.yaml -r > ./.cache/render.yaml
+	$(KCL) test
+
 
 yamllint: ## Static yamllint check
 	@$(INFO) running yamllint
