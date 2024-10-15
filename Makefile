@@ -1,6 +1,46 @@
+# Usage
+# ====================================================================================
+# Generic Makefile to be used across repositories building a crossplane configuration
+# package
+#
+# Available targets:
+#
+# - `yamllint`
+#   Runs yamllint for all files in `api`-folder recursively
+#
+# - `render`
+#   Runs crossplane render to render the output of the composition. Usefule for quick
+#   feedback in order to test templating.
+#   Important note:
+#		Claims need following annotations in order for render to work (adjust the paths
+#		if necessary):
+#			render.crossplane.io/composition-path: apis/pat/composition.yaml
+#			render.crossplane.io/function-path: examples/functions.yaml
+#
+# - `e2e`
+#   Runs full end-to-end test, including creating cluster, setting up the configuration
+#   and testing if create, import and delete work as expected.
+#   This target requires the following environment variables to be set:
+#   UPTEST_CLOUD_CREDENTIALS, cloud credentials for the provider being tested, e.g. export UPTEST_CLOUD_CREDENTIALS=$(cat ~/.azure/credentials.json)
+#	Available options:
+#		UPTEST_SKIP_DELETE (default `false`) skips the deletion of any resources created during the test
+#		UPTEST_SKIP_UPDATE (default `false`) skips testing the update of the claims
+#		UPTEST_SKIP_IMPORT (default `true`) skips testing the import of resources
+#	Example:
+#		`make e2e UPTEST_SKIP_DELETE=true`
+
 # Project Setup
-PROJECT_NAME := configuration-azure-network
+# ====================================================================================
+
+# Include project.mk for project specific settings
+include project.mk
+
+ifndef PROJECT_NAME
+  $(error PROJECT_NAME is not set. Please create `project.mk` and set it there.)
+endif
+
 PROJECT_REPO := github.com/upbound/$(PROJECT_NAME)
+
 
 # NOTE(hasheddan): the platform is insignificant here as Configuration package
 # images are not architecture-specific. We constrain to one platform to avoid
@@ -13,8 +53,7 @@ PLATFORMS ?= linux_amd64
 
 UP_VERSION = v0.34.1
 UP_CHANNEL = stable
-UPTEST_VERSION = v0.13.1
-CROSSPLANE_CLI_VERSION = v1.16.0
+CROSSPLANE_CLI_VERSION = v1.17.1
 
 -include build/makelib/k8s_tools.mk
 # ====================================================================================
@@ -35,6 +74,15 @@ CROSSPLANE_NAMESPACE = upbound-system
 KIND_CLUSTER_NAME = uptest-$(PROJECT_NAME)
 -include build/makelib/local.xpkg.mk
 -include build/makelib/controlplane.mk
+
+# ====================================================================================
+# Testing
+
+UPTEST_VERSION = v1.2.0
+UPTEST_LOCAL_DEPLOY_TARGET = local.xpkg.deploy.configuration.$(PROJECT_NAME)
+UPTEST_DEFAULT_TIMEOUT = 2400s
+
+-include build/makelib/uptest.mk
 
 # ====================================================================================
 # Targets
@@ -58,39 +106,9 @@ submodules: ## Update the submodules, such as the common build scripts.
 # machinery sets UP to point to tool cache.
 build.init: $(UP)
 
-# ====================================================================================
-# End to End Testing
-#
-check:
-ifndef UPTEST_CLOUD_CREDENTIALS
-	@$(INFO) Please export UPTEST_CLOUD_CREDENTIALS
-	@$(FAIL)
-endif
-
-# This target requires the following environment variables to be set:
-# - UPTEST_CLOUD_CREDENTIALS, cloud credentials for the provider being tested, e.g. export UPTEST_CLOUD_CREDENTIALS=$(cat azure.json)
-SKIP_DELETE ?=
-uptest: $(UPTEST) $(KUBECTL) $(KUTTL)
-	@$(INFO) running automated tests
-	@KUBECTL=$(KUBECTL) KUTTL=$(KUTTL) CROSSPLANE_NAMESPACE=$(CROSSPLANE_NAMESPACE) $(UPTEST) e2e examples/network-xr.yaml --data-source="${UPTEST_DATASOURCE_PATH}" --setup-script=test/setup.sh --default-timeout=2400 $(SKIP_DELETE) || $(FAIL)
-	@$(OK) running automated tests
-
-# This target requires the following environment variables to be set:
-# - UPTEST_CLOUD_CREDENTIALS, cloud credentials for the provider being tested, e.g. export UPTEST_CLOUD_CREDENTIALS=$(cat azure.json)
-e2e: check build controlplane.down controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME) uptest ## Run uptest together with all dependencies. Use `make e2e SKIP_DELETE=--skip-delete` to skip deletion of resources.
-
-render: $(CROSSPLANE_CLI) ## Crossplane render
-	$(CROSSPLANE_CLI) beta render examples/network-xr.yaml apis/default/composition.yaml examples/function/function.yaml -r
-
 render.test: $(CROSSPLANE_CLI) $(KCL)
-	$(CROSSPLANE_CLI) beta render examples/network-xr.yaml apis/default/composition.yaml examples/function/function.yaml -r > ./.cache/render.yaml
+	$(CROSSPLANE_CLI) render examples/network-xr.yaml apis/pat/composition.yaml examples/functions.yaml -r > ./.cache/render.yaml
 	$(KCL) test
-
-
-yamllint: ## Static yamllint check
-	@$(INFO) running yamllint
-	@yamllint ./apis || $(FAIL)
-	@$(OK) running yamllint
 
 help.local:
 	@grep -E '^[a-zA-Z_-]+.*:.*?## .*$$' Makefile | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

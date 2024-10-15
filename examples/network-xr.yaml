@@ -1,6 +1,9 @@
 apiVersion: azure.platform.upbound.io/v1alpha1
 kind: XNetwork
 metadata:
+  annotations:
+    render.crossplane.io/composition-path: apis/pat/composition.yaml
+    render.crossplane.io/function-path: examples/functions.yaml
   name: ref-azure-network
 spec:
   parameters:
