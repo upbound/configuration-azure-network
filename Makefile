@@ -51,7 +51,7 @@ PLATFORMS ?= linux_amd64
 # ====================================================================================
 # Setup Kubernetes tools
 
-UP_VERSION = v0.34.1
+UP_VERSION = v0.34.2
 UP_CHANNEL = stable
 CROSSPLANE_CLI_VERSION = v1.17.1
 
