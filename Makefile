@@ -16,18 +16,38 @@
 #		if necessary):
 #			render.crossplane.io/composition-path: apis/pat/composition.yaml
 #			render.crossplane.io/function-path: examples/functions.yaml
+#		This will only populate the cache. Use `render.show` to use the output
+#
+# - `render.show`
+#   Outputs the rendered yaml, useful for validating the rendered output manually
+#   or together with 'crossplane validate', e.g.:
+#   	`make render.show | crossplane beta validate crossplane.yaml -`
+#
+# - `render.test`
+#   Executes kcl-unit tests on rendered manifests. Tests live in `test`-folder and
+#   can be written as normal kcl-tests
 #
 # - `e2e`
 #   Runs full end-to-end test, including creating cluster, setting up the configuration
 #   and testing if create, import and delete work as expected.
-#   This target requires the following environment variables to be set:
-#   UPTEST_CLOUD_CREDENTIALS, cloud credentials for the provider being tested, e.g. export UPTEST_CLOUD_CREDENTIALS=$(cat ~/.azure/credentials.json)
+#   In case the configuration creates resources on a cloud provider, it requires the following
+#   environment variables to be set:
+#   UPTEST_CLOUD_CREDENTIALS, cloud credentials for the provider being tested, e.g.
+#   	- for aws: `export UPTEST_CLOUD_CREDENTIALS=$(cat ~/.aws/credentials)`
+#   	- for gcp: `export UPTEST_CLOUD_CREDENTIALS=$(cat gcp-sa.json)`
+#   	- for azure: `export UPTEST_CLOUD_CREDENTIALS=$(cat azure.json)`
+#
 #	Available options:
 #		UPTEST_SKIP_DELETE (default `false`) skips the deletion of any resources created during the test
 #		UPTEST_SKIP_UPDATE (default `false`) skips testing the update of the claims
 #		UPTEST_SKIP_IMPORT (default `true`) skips testing the import of resources
 #	Example:
 #		`make e2e UPTEST_SKIP_DELETE=true`
+#
+# Language specific options:
+#
+# - `KCL`
+#      KCL_COMPOSITION_PATH can be set to the kcl-file creating composition.yaml. Default: `apis/kcl/generate.k`
 
 # Project Setup
 # ====================================================================================
@@ -41,7 +61,6 @@ endif
 
 PROJECT_REPO := github.com/upbound/$(PROJECT_NAME)
 
-
 # NOTE(hasheddan): the platform is insignificant here as Configuration package
 # images are not architecture-specific. We constrain to one platform to avoid
 # needlessly pushing a multi-arch image.
@@ -51,7 +70,7 @@ PLATFORMS ?= linux_amd64
 # ====================================================================================
 # Setup Kubernetes tools
 
-UP_VERSION = v0.34.2
+UP_VERSION = v0.34.0
 UP_CHANNEL = stable
 CROSSPLANE_CLI_VERSION = v1.17.1
 
@@ -59,7 +78,7 @@ CROSSPLANE_CLI_VERSION = v1.17.1
 # ====================================================================================
 # Setup XPKG
 XPKG_DIR = $(shell pwd)
-XPKG_IGNORE = .github/workflows/*.yaml,.github/workflows/*.yml,examples/*.yaml,.work/uptest-datasource.yaml,.cache/*.yaml
+XPKG_IGNORE = .github/workflows/*.yaml,.github/workflows/*.yml,examples/*.yaml,.work/uptest-datasource.yaml,.cache/render/*
 XPKG_REG_ORGS ?= xpkg.upbound.io/upbound
 # NOTE(hasheddan): skip promoting on xpkg.upbound.io as channel tags are
 # inferred.
@@ -67,18 +86,20 @@ XPKG_REG_ORGS_NO_PROMOTE ?= xpkg.upbound.io/upbound
 XPKGS = $(PROJECT_NAME)
 -include build/makelib/xpkg.mk
 
-CROSSPLANE_VERSION = 1.17.1-up.1
+CROSSPLANE_VERSION = v1.17.1-up.1
 CROSSPLANE_CHART_REPO = https://charts.upbound.io/stable
 CROSSPLANE_CHART_NAME = universal-crossplane
 CROSSPLANE_NAMESPACE = upbound-system
-KIND_CLUSTER_NAME = uptest-$(PROJECT_NAME)
+CROSSPLANE_ARGS = "--enable-usages"
+KIND_CLUSTER_NAME ?= uptest-$(PROJECT_NAME)
+
 -include build/makelib/local.xpkg.mk
 -include build/makelib/controlplane.mk
 
 # ====================================================================================
 # Testing
 
-UPTEST_VERSION = v1.2.0
+UPTEST_VERSION = v1.1.2
 UPTEST_LOCAL_DEPLOY_TARGET = local.xpkg.deploy.configuration.$(PROJECT_NAME)
 UPTEST_DEFAULT_TIMEOUT = 2400s
 
@@ -106,9 +127,54 @@ submodules: ## Update the submodules, such as the common build scripts.
 # machinery sets UP to point to tool cache.
 build.init: $(UP)
 
-render.test: $(CROSSPLANE_CLI) $(KCL)
-	$(CROSSPLANE_CLI) render examples/network-xr.yaml apis/pat/composition.yaml examples/functions.yaml -r > ./.cache/render.yaml
-	$(KCL) test
+# In case of building a composition with kcl, we must first render the composition-file
+KCL_COMPOSITION_PATH ?= apis/kcl/generate.k
+LANG_KCL := $(shell find ./apis -type f -name '*.k')
+ifdef LANG_KCL
+kcl: $(KCL) ## Generate KCL-based Composition
+	@$(INFO) Generating kcl composition
+	@$(KCL) $(KCL_COMPOSITION_PATH) 1>/dev/null
+	@$(OK) Generated kcl composition
+
+render: kcl
+build.init: kcl
+.PHONY: kcl
+endif
+
+render.test: $(CROSSPLANE_CLI) $(KCL) render
+	@echo find .cache/render -depth 1 -type f -name '*.yaml'
+	@for RENDERED_COMPOSITION in $$(find .cache/render -maxdepth 1 -type f -name '*.yaml'); do \
+		$(INFO) "Testing $${RENDERED_COMPOSITION}"; \
+		export RENDERED_COMPOSITION; \
+		$(KCL) test test/ && \
+		$(OK) "Success testing \"$${RENDERED_COMPOSITION}\"!" || \
+		($(ERR) "Failure testing \"$${RENDERED_COMPOSITION}\"!" && exit 1); \
+	done; \
+
+.PHONY: check-examples
+check-examples: ## Check examples for sanity
+	@$(INFO) Checking if package versions in dependencies match examples
+	@FN_EXAMPLES=$$( \
+		find examples -type f -name "*.yaml" | \
+		xargs $(YQ) -r -o=json 'select(.kind == "Function" and (.apiVersion | test("^pkg.crossplane.io/"))) | .spec.package' | \
+		sort -u); \
+	FN_DEPS=$$( \
+		$(YQ) '.spec.dependsOn[] | select(.function != null) | (.function + ":" + .version)' crossplane.yaml | \
+		sort -u \
+	); \
+	if [ "$$FN_EXAMPLES" != "$$FN_DEPS" ]; then \
+		echo "Function package versions in examples and in crossplane.yaml don't match!"; \
+		echo "" ; \
+		echo "Versions in dependencies:"; \
+		echo "---" ; \
+		echo "$$FN_DEPS"; \
+		echo "" ; \
+		echo "Versions in examples:"; \
+		echo "---" ; \
+		echo "$$FN_EXAMPLES"; \
+		exit 1; \
+	fi;
+	@$(OK) Package versions are sane
 
 help.local:
 	@grep -E '^[a-zA-Z_-]+.*:.*?## .*$$' Makefile | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
