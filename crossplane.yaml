@@ -17,8 +17,7 @@ spec:
     version: ">=v1.14.1-0"
   dependsOn:
     - provider: xpkg.upbound.io/upbound/provider-azure-network
-      # renovate: datasource=github-releases depName=upbound/provider-azure
-      version: "v1.11.0"
+      version: "v1"
     - function: xpkg.upbound.io/crossplane-contrib/function-patch-and-transform
       # renovate: datasource=github-releases depName=crossplane-contrib/function-patch-and-transform
       version: "v0.8.0"
