@@ -3,4 +3,4 @@ kind: Configuration
 metadata:
   name: configuration-azure-network
 spec:
-  package: xpkg.upbound.io/upbound/configuration-azure-network:v0.1.0
+  package: xpkg.upbound.io/upbound/configuration-azure-network:v0.13.0
