@@ -32,27 +32,16 @@ _items = [
             extraResources = [
                 azurev1beta1.ProviderConfig{
                     metadata.name = "default"
-                    spec.credentials = {
-                        source = "Secret"
-                        secretRef = {
-                            namespace = "crossplane-system"
-                            name = "azure-secret"
-                            key = "creds"
+                    spec = azurev1beta1.AzureUpboundIoV1beta1ProviderConfigSpec{
+                        credentials = {
+                            source = "Upbound"
                         }
+                        clientID = "bcf40abd-283c-494b-b186-03d6c864be51"
+                        tenantID = "b9925bc4-8383-4c37-b9d2-fa456d1bb1c7"
+                        subscriptionID = "038f2b7c-3265-43b8-8624-c9ad5da610a8"
                     }
                 }
-                {
-                    apiVersion = "v1"
-                    kind = "Secret"
-                    metadata = {
-                        name = "azure-secret"
-                        namespace = "crossplane-system"
-                    }
-                    type = "Opaque"
-                    stringData = {
-                        creds = file.read_env("UP_CLOUD_CREDENTIALS")
-                    }
-                }
+
             ]
 
             # Test cleanup settings
