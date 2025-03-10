@@ -21,7 +21,7 @@ _items = [
 
                 # Resource Group
                 azurev1beta1.ResourceGroup{
-                    metadata.name = "ref-azure-network-from-xr-resourceGroup"
+                    metadata.name = "ref-azure-network-from-xr-rg"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
                     }

@@ -31,14 +31,14 @@ _metadata = lambda name: str -> any {
 _add_common_spec_fields = lambda spec: any -> any {
     spec | {
         deletionPolicy = params.deletionPolicy
-        providerConfigRef.name = params.providerConfigRef
+        providerConfigRef.name = params.providerConfigName
     }
 }
 
 _items = [
     # Resource Group
     azurev1beta1.ResourceGroup {
-        metadata = _metadata("${params.id}-resourceGroup")
+        metadata = _metadata("${params.id}-rg")
         spec = _add_common_spec_fields(azurev1beta1.AzureUpboundIoV1beta1ResourceGroupSpec {
             forProvider = azurev1beta1.AzureUpboundIoV1beta1ResourceGroupSpecForProvider {
                 location = params.region

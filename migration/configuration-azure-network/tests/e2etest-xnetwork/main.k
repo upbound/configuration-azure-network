@@ -1,6 +1,7 @@
 import models.io.upbound.platform.azure.v1alpha1 as platformazurev1alpha1
 import models.io.upbound.azure.v1beta1 as azurev1beta1
 import models.io.upbound.dev.meta.v1alpha1 as metav1alpha1
+import file
 
 _items = [
     metav1alpha1.E2ETest{
@@ -38,6 +39,18 @@ _items = [
                             name = "azure-secret"
                             key = "creds"
                         }
+                    }
+                }
+                {
+                    apiVersion = "v1"
+                    kind = "Secret"
+                    metadata = {
+                        name = "azure-secret"
+                        namespace = "crossplane-system"
+                    }
+                    type = "Opaque"
+                    stringData = {
+                        creds = file.read_env("UP_CLOUD_CREDENTIALS")
                     }
                 }
             ]
