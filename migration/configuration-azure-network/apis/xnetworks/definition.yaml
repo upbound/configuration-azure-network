@@ -1,0 +1,54 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xnetworks.azure.platform.upbound.io
+spec:
+  group: azure.platform.upbound.io
+  names:
+    categories:
+    - crossplane
+    kind: XNetwork
+    plural: xnetworks
+  versions:
+  - name: v1alpha1
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        description: XNetwork is the Schema for the XNetwork API.
+        properties:
+          spec:
+            description: XNetworkSpec defines the desired state of XNetwork.
+            properties:
+              parameters:
+                properties:
+                  id:
+                    type: string
+                    description: ID of this Network that other objects will use to refer to it.
+                  region:
+                    type: string
+                    description: Region is the region you'd like your resource to be created in.
+                  deletionPolicy:
+                    description: Delete the external resources when the Claim/XR is deleted. Defaults to Delete
+                    enum:
+                      - Delete
+                      - Orphan
+                    type: string
+                    default: Delete
+                  providerConfigName:
+                    description: Crossplane ProviderConfig to use for provisioning this resources
+                    type: string
+                    default: default
+                required:
+                - deletionPolicy
+                - providerConfigName
+                - id
+                - region
+                type: object
+            type: object
+          status:
+            description: XNetworkStatus defines the observed state of XNetwork.
+            type: object
+        required:
+        - spec
+        type: object
+    served: true

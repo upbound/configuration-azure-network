@@ -1,0 +1,10 @@
+apiVersion: azure.platform.upbound.io/v1alpha1
+kind: XNetwork
+metadata:
+  name: ref-azure-network
+spec:
+  parameters:
+    id: ref-azure-network-from-xr
+    region: westus
+    deletionPolicy: Delete
+    providerConfigRef: default
