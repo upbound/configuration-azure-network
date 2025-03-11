@@ -22,10 +22,6 @@ _metadata = lambda name: str -> any {
         labels = {"azure.platform.upbound.io/network-id" = params.id}
     }
 }
-# Example to retrieve variables from "xr"; update as needed
-# _region = "us-east-1"
-# if oxr.spec?.parameters?.region:
-#     _region = oxr.spec.parameters.region
 
 # Helper function to add common spec fields
 _add_common_spec_fields = lambda spec: any -> any {
@@ -40,7 +36,7 @@ _items = [
     azurev1beta1.ResourceGroup {
         metadata = _metadata("${params.id}-rg")
         spec = _add_common_spec_fields(azurev1beta1.AzureUpboundIoV1beta1ResourceGroupSpec {
-            forProvider = azurev1beta1.AzureUpboundIoV1beta1ResourceGroupSpecForProvider {
+            forProvider = {
                 location = params.region
             }
         })
@@ -50,7 +46,7 @@ _items = [
     networkv1beta2.VirtualNetwork {
         metadata = _metadata("${params.id}-vnet")
         spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2VirtualNetworkSpec {
-            forProvider = networkv1beta2.NetworkAzureUpboundIoV1beta2VirtualNetworkSpecForProvider {
+            forProvider = {
                 location = params.region
                 addressSpace = ["192.168.0.0/16"]
                 resourceGroupNameSelector = {
@@ -64,7 +60,7 @@ _items = [
     networkv1beta2.Subnet {
         metadata = _metadata("${params.id}-sn")
         spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2SubnetSpec {
-            forProvider = networkv1beta2.NetworkAzureUpboundIoV1beta2SubnetSpecForProvider {
+            forProvider = {
                 addressPrefixes = ["192.168.1.0/24"]
                 resourceGroupNameSelector = {
                     matchControllerRef = True

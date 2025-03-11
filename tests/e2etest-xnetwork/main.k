@@ -32,7 +32,7 @@ _items = [
             extraResources = [
                 azurev1beta1.ProviderConfig{
                     metadata.name = "default"
-                    spec = azurev1beta1.AzureUpboundIoV1beta1ProviderConfigSpec{
+                    spec = {
                         credentials = {
                             source = "Upbound"
                         }
