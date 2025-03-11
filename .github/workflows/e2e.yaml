@@ -11,7 +11,7 @@ env:
   UP_ORG: ${{ secrets.UP_ORG }}
 
 jobs:
-  deploy:
+  e2e:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -24,6 +24,9 @@ jobs:
         with:
           api-token: ${{ secrets.UP_API_TOKEN }}
           organization: ${{ secrets.UP_ORG }}
+
+      - name: Build project
+        run: up project build
 
       - name: Switch up context
         run: up ctx upboundcare/upbound-gcp-us-central-1/default

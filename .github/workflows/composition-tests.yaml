@@ -11,7 +11,7 @@ env:
   UP_ORG: ${{ secrets.UP_ORG }}
 
 jobs:
-  deploy:
+  composition-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -24,6 +24,9 @@ jobs:
         with:
           api-token: ${{ secrets.UP_API_TOKEN }}
           organization: ${{ secrets.UP_ORG }}
+
+      - name: Build project
+        run: up project build
 
       - name: Run composition tests
         run: up test run tests/*
