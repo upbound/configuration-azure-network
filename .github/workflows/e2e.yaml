@@ -36,5 +36,5 @@ jobs:
           curl -L -o /usr/local/bin/chainsaw https://yurychainsaw.blob.core.windows.net/chainsaw/chainsaw
           chmod +x /usr/local/bin/chainsaw
 
-      - name: Run composition tests
+      - name: Run e2e tests
         run: up test run tests/* --e2e
