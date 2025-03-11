@@ -1,4 +1,4 @@
-name: End to End Testing
+name: Composition Tests
 
 on:
   push:
@@ -25,8 +25,5 @@ jobs:
           api-token: ${{ secrets.UP_API_TOKEN }}
           organization: ${{ secrets.UP_ORG }}
 
-      - name: Switch up context
-        run: up ctx upboundcare/upbound-gcp-us-central-1/default
-
       - name: Run composition tests
-        run: up test run tests/* --e2e
+        run: up test run tests/*
