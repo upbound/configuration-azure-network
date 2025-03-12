@@ -6,7 +6,7 @@ import models.io.upbound.platform.azure.v1alpha1 as platformazurev1alpha1
 import models.k8s.apimachinery.pkg.apis.meta.v1 as metav1
 
 # observed composite resource
-oxr = option("params").oxr
+oxr = platformazurev1alpha1.XNetwork{**option("params").oxr}
 params = oxr.spec.parameters
 # observed composed resources
 _ocds = option("params").ocds
