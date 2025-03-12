@@ -6,5 +6,3 @@ spec:
   parameters:
     id: ref-azure-network-from-xr
     region: westus
-    deletionPolicy: Delete
-    providerConfigName: default
