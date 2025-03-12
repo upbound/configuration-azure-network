@@ -29,9 +29,9 @@ jobs:
         run: up project build
 
       - name: Switch up context
-        run: up ctx upboundcare/upbound-gcp-us-central-1/default
+        run: up ctx ${{ secrets.UP_ORG }}/upbound-gcp-us-central-1/default
 
-      - name: Download and install Upbound-enchanced Chainsaw(remove me later)
+      - name: Download and install Upbound-enhanced Chainsaw(remove me later)
         run: |
           curl -L -o /usr/local/bin/chainsaw https://yurychainsaw.blob.core.windows.net/chainsaw/chainsaw
           chmod +x /usr/local/bin/chainsaw
