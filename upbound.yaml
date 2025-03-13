@@ -16,5 +16,6 @@ spec:
 
     For more details and customization options, you can explore [the GitHub repository](https://github.com/upbound/configuration-azure-network).
     TEST2
+    TEST-SYNC
   repository: xpkg.upbound.io/upbound/configuration-azure-network
   source: github.com/upbound/configuration-azure-network
