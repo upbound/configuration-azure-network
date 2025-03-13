@@ -1,7 +1,10 @@
 name: End to End Testing
 
 on:
-  pull_request:
+  # https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/
+  # pull_request_target is potentially dangerous target so we keep it strict
+  # under the label and benefit from secret propagation
+  pull_request_target:
     types:
       - synchronize
       - labeled
