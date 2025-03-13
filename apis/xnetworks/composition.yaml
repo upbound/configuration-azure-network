@@ -9,7 +9,7 @@ spec:
   mode: Pipeline
   pipeline:
   - functionRef:
-      name: upboundcare-configuration-azure-networkxnetwork
+      name: upbound-configuration-azure-networkxnetwork
     step: xnetwork
   - functionRef:
       name: crossplane-contrib-function-auto-ready
