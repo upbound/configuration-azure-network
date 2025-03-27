@@ -14,6 +14,9 @@ _items = [
                     spec.parameters = {
                         id = "ref-azure-network-from-xr"
                         region = "westus"
+                        addressSpace = "10.0.0.0/16"
+                        generalSubnetPrefix = "10.0.1.0/24"
+                        databaseSubnetPrefix = "10.0.2.0/24"
                         deletionPolicy = "Delete"
                         providerConfigName = "default"
                     }
@@ -69,9 +72,9 @@ _items = [
                     spec.providerConfigRef.name = "default"
                 }
 
-                # PostgreSQL Subnet
+                # Database Subnet
                 networkv1beta2.Subnet{
-                    metadata.name = "ref-azure-network-from-xr-psql-sn"
+                    metadata.name = "ref-azure-network-from-xr-db-sn"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
                     }
