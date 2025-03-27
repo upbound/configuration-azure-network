@@ -48,7 +48,7 @@ _items = [
         spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2VirtualNetworkSpec {
             forProvider = {
                 location = params.region
-                addressSpace = ["10.0.0.0/16"]
+                addressSpace = [params.addressSpace]
                 resourceGroupNameSelector = {
                     matchControllerRef = True
                 }
@@ -61,7 +61,7 @@ _items = [
         metadata = _metadata("${params.id}-sn")
         spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2SubnetSpec {
             forProvider = {
-                addressPrefixes = ["10.0.1.0/24"]
+                addressPrefixes = [params.generalSubnetPrefix]
                 resourceGroupNameSelector = {
                     matchControllerRef = True
                 }
@@ -73,12 +73,12 @@ _items = [
         })
     }
 
-    # Delegated Subnet for PostgreSQL Flexible Server
+    # Delegated Subnet for Database Flexible Server
     networkv1beta2.Subnet {
-        metadata = _metadata("${params.id}-psql-sn")
+        metadata = _metadata("${params.id}-db-sn")
         spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2SubnetSpec {
             forProvider = {
-                addressPrefixes = ["10.0.2.0/24"]
+                addressPrefixes = [params.databaseSubnetPrefix]
                 delegation = [{
                     name = "fs"
                     serviceDelegation = {

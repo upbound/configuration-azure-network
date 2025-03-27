@@ -27,6 +27,18 @@ spec:
                   region:
                     type: string
                     description: Region is the region you'd like your resource to be created in.
+                  addressSpace:
+                    type: string
+                    description: Address space for the virtual network in CIDR notation.
+                    default: "10.0.0.0/16"
+                  generalSubnetPrefix:
+                    type: string
+                    description: Address prefix for the general subnet in CIDR notation.
+                    default: "10.0.1.0/24"
+                  databaseSubnetPrefix:
+                    type: string
+                    description: Address prefix for the database subnet in CIDR notation.
+                    default: "10.0.2.0/24"
                   deletionPolicy:
                     description: Delete the external resources when the Claim/XR is deleted. Defaults to Delete
                     enum:
