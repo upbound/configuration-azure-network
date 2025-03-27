@@ -99,6 +99,6 @@ _database_subnet = [
             }
         })
     }
-] if "databaseSubnetPrefix" in params else []
+] if params.databaseSubnetPrefix != Undefined else []
 
 items = _base_resources + _database_subnet
