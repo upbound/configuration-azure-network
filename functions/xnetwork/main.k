@@ -48,7 +48,7 @@ _items = [
         spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2VirtualNetworkSpec {
             forProvider = {
                 location = params.region
-                addressSpace = ["192.168.0.0/16"]
+                addressSpace = ["10.0.0.0/16"]
                 resourceGroupNameSelector = {
                     matchControllerRef = True
                 }
@@ -56,16 +56,40 @@ _items = [
         })
     }
 
-    # Subnet
+    # Subnet for general use
     networkv1beta2.Subnet {
         metadata = _metadata("${params.id}-sn")
         spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2SubnetSpec {
             forProvider = {
-                addressPrefixes = ["192.168.1.0/24"]
+                addressPrefixes = ["10.0.1.0/24"]
                 resourceGroupNameSelector = {
                     matchControllerRef = True
                 }
                 serviceEndpoints = ["Microsoft.Sql"]
+                virtualNetworkNameSelector = {
+                    matchControllerRef = True
+                }
+            }
+        })
+    }
+
+    # Delegated Subnet for PostgreSQL Flexible Server
+    networkv1beta2.Subnet {
+        metadata = _metadata("${params.id}-psql-sn")
+        spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2SubnetSpec {
+            forProvider = {
+                addressPrefixes = ["10.0.2.0/24"]
+                delegation = [{
+                    name = "fs"
+                    serviceDelegation = {
+                        actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+                        name = "Microsoft.DBforPostgreSQL/flexibleServers"
+                    }
+                }]
+                resourceGroupNameSelector = {
+                    matchControllerRef = True
+                }
+                serviceEndpoints = ["Microsoft.Storage"]
                 virtualNetworkNameSelector = {
                     matchControllerRef = True
                 }

@@ -40,7 +40,7 @@ _items = [
                     }
                     spec.forProvider = {
                         location = "westus"
-                        addressSpace = ["192.168.0.0/16"]
+                        addressSpace = ["10.0.0.0/16"]
                         resourceGroupNameSelector = {
                             matchControllerRef = True
                         }
@@ -49,18 +49,45 @@ _items = [
                     spec.providerConfigRef.name = "default"
                 }
 
-                # Subnet
+                # General Subnet
                 networkv1beta2.Subnet{
                     metadata.name = "ref-azure-network-from-xr-sn"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
                     }
                     spec.forProvider = {
-                        addressPrefixes = ["192.168.1.0/24"]
+                        addressPrefixes = ["10.0.1.0/24"]
                         resourceGroupNameSelector = {
                             matchControllerRef = True
                         }
                         serviceEndpoints = ["Microsoft.Sql"]
+                        virtualNetworkNameSelector = {
+                            matchControllerRef = True
+                        }
+                    }
+                    spec.deletionPolicy = "Delete"
+                    spec.providerConfigRef.name = "default"
+                }
+
+                # PostgreSQL Subnet
+                networkv1beta2.Subnet{
+                    metadata.name = "ref-azure-network-from-xr-psql-sn"
+                    metadata.labels = {
+                        "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
+                    }
+                    spec.forProvider = {
+                        addressPrefixes = ["10.0.2.0/24"]
+                        delegation = [{
+                            name = "fs"
+                            serviceDelegation = {
+                                actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+                                name = "Microsoft.DBforPostgreSQL/flexibleServers"
+                            }
+                        }]
+                        resourceGroupNameSelector = {
+                            matchControllerRef = True
+                        }
+                        serviceEndpoints = ["Microsoft.Storage"]
                         virtualNetworkNameSelector = {
                             matchControllerRef = True
                         }
