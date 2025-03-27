@@ -37,8 +37,7 @@ spec:
                     default: "10.0.1.0/24"
                   databaseSubnetPrefix:
                     type: string
-                    description: Address prefix for the database subnet in CIDR notation.
-                    default: "10.0.2.0/24"
+                    description: Address prefix for the database subnet in CIDR notation. If not specified, no database subnet will be created.
                   deletionPolicy:
                     description: Delete the external resources when the Claim/XR is deleted. Defaults to Delete
                     enum:

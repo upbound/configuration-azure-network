@@ -31,7 +31,8 @@ _add_common_spec_fields = lambda spec: any -> any {
     }
 }
 
-_items = [
+# Base network resources
+_base_resources = [
     # Resource Group
     azurev1beta1.ResourceGroup {
         metadata = _metadata("${params.id}-rg")
@@ -72,8 +73,10 @@ _items = [
             }
         })
     }
+]
 
-    # Delegated Subnet for Database Flexible Server
+# Database subnet (optional)
+_database_subnet = [
     networkv1beta2.Subnet {
         metadata = _metadata("${params.id}-db-sn")
         spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2SubnetSpec {
@@ -96,6 +99,6 @@ _items = [
             }
         })
     }
-]
+] if "databaseSubnetPrefix" in params else []
 
-items = _items
+items = _base_resources + _database_subnet
