@@ -49,7 +49,7 @@ _base_resources = [
         spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2VirtualNetworkSpec {
             forProvider = {
                 location = params.region
-                addressSpace = [params.addressSpace]
+                addressSpace = [params.addressRange]
                 resourceGroupNameSelector = {
                     matchControllerRef = True
                 }
@@ -62,7 +62,7 @@ _base_resources = [
         metadata = _metadata("${params.id}-sn")
         spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2SubnetSpec {
             forProvider = {
-                addressPrefixes = [params.generalSubnetPrefix]
+                addressPrefixes = [params.generalSubnetRange]
                 resourceGroupNameSelector = {
                     matchControllerRef = True
                 }
@@ -75,29 +75,21 @@ _base_resources = [
     }
 ]
 
-# Database subnet (optional)
-_database_subnet = [
+# Database subnets (optional)
+_subnets_from_spec = params.databaseSubnets if params.databaseSubnets != Undefined else []
+_database_subnets = [
     networkv1beta2.Subnet {
-        metadata = _metadata("${params.id}-db-sn")
+        metadata = _metadata("${params.id}-db-sn-${index}")
         spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2SubnetSpec {
             forProvider = {
-                addressPrefixes = [params.databaseSubnetPrefix]
-                delegation = [
-                    {
-                        name = "fs-postgresql"
-                        serviceDelegation = {
-                            actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
-                            name = "Microsoft.DBforPostgreSQL/flexibleServers"
-                        }
-                    },
-                    {
-                        name = "fs-mysql"
-                        serviceDelegation = {
-                            actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
-                            name = "Microsoft.DBforMySQL/flexibleServers"
-                        }
+                addressPrefixes = [subnet.addressRange]
+                delegation = [{
+                    name = "fs"
+                    serviceDelegation = {
+                        actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+                        name = "Microsoft.DBforPostgreSQL/flexibleServers" if subnet.serviceType == "postgresql" else "Microsoft.DBforMySQL/flexibleServers"
                     }
-                ]
+                }]
                 resourceGroupNameSelector = {
                     matchControllerRef = True
                 }
@@ -107,7 +99,7 @@ _database_subnet = [
                 }
             }
         })
-    }
-] if params.databaseSubnetPrefix != Undefined else []
+    } for index, subnet in _subnets_from_spec
+]
 
-items = _base_resources + _database_subnet
+items = _base_resources + _database_subnets

@@ -6,6 +6,8 @@ spec:
   parameters:
     id: ref-azure-network-from-xr
     region: westus
-    addressSpace: 10.0.0.0/16
-    generalSubnetPrefix: 10.0.1.0/24
-    databaseSubnetPrefix: 10.0.2.0/24
+    addressRange: 10.0.0.0/16
+    generalSubnetRange: 10.0.1.0/24
+    databaseSubnets:
+      - addressRange: 10.0.2.0/24
+        serviceType: mysql
