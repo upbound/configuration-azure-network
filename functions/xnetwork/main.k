@@ -82,13 +82,22 @@ _database_subnet = [
         spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2SubnetSpec {
             forProvider = {
                 addressPrefixes = [params.databaseSubnetPrefix]
-                delegation = [{
-                    name = "fs"
-                    serviceDelegation = {
-                        actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
-                        name = "Microsoft.DBforPostgreSQL/flexibleServers"
+                delegation = [
+                    {
+                        name = "fs-postgresql"
+                        serviceDelegation = {
+                            actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+                            name = "Microsoft.DBforPostgreSQL/flexibleServers"
+                        }
+                    },
+                    {
+                        name = "fs-mysql"
+                        serviceDelegation = {
+                            actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+                            name = "Microsoft.DBforMySQL/flexibleServers"
+                        }
                     }
-                }]
+                ]
                 resourceGroupNameSelector = {
                     matchControllerRef = True
                 }
