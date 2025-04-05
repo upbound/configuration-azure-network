@@ -27,6 +27,30 @@ spec:
                   region:
                     type: string
                     description: Region is the region you'd like your resource to be created in.
+                  addressRange:
+                    type: string
+                    description: Address range (CIDR block) for the virtual network
+                    default: "10.0.0.0/16"
+                  generalSubnetRange:
+                    type: string
+                    description: Address range (CIDR block) for the general subnet
+                    default: "10.0.1.0/24"
+                  databaseSubnets:
+                    type: array
+                    description: List of database subnets to create
+                    items:
+                      type: object
+                      properties:
+                        addressRange:
+                          type: string
+                          description: Address range (CIDR block) for the database subnet
+                        serviceType:
+                          type: string
+                          description: Type of database service to use (postgresql or mysql)
+                          enum: ["postgresql", "mysql"]
+                      required:
+                        - addressRange
+                        - serviceType
                   deletionPolicy:
                     description: Delete the external resources when the Claim/XR is deleted. Defaults to Delete
                     enum:
