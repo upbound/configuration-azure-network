@@ -76,7 +76,7 @@ _base_resources = [
 ]
 
 # Database subnets (optional)
-_subnets_from_spec = params.databaseSubnets if params.databaseSubnets != Undefined else []
+_subnets_from_spec = params.databaseSubnets or []
 _database_subnets = [
     networkv1beta2.Subnet {
         metadata = _metadata("${params.id}-db-sn-${index}")
