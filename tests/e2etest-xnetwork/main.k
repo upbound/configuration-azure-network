@@ -5,7 +5,7 @@ import file
 
 _items = [
     metav1alpha1.E2ETest{
-        metadata.name = "e2etest-xnetwork-azure"
+        metadata.name = "xnetwork-azure"
         spec = {
             # Configure Crossplane for the test environment
             crossplane.autoUpgrade.channel = "Rapid"
@@ -22,6 +22,8 @@ _items = [
                     spec.parameters = {
                         id = "uptest-azure-network"
                         region = "westus2"
+                        addressRange = "10.0.0.0/16"
+                        generalSubnetRange = "10.0.1.0/24"
                         deletionPolicy = "Delete"
                         providerConfigName = "default"
                     }
@@ -41,7 +43,64 @@ _items = [
                         subscriptionID = "038f2b7c-3265-43b8-8624-c9ad5da610a8"
                     }
                 }
+            ]
 
+            # Test cleanup settings
+            skipDelete = False
+
+            # Set a reasonable timeout for resources to be provisioned
+            timeoutSeconds = 3600
+        }
+    },
+    metav1alpha1.E2ETest{
+        metadata.name = "xnetwork-azure-with-dbs"
+        spec = {
+            # Configure Crossplane for the test environment
+            crossplane.autoUpgrade.channel = "Rapid"
+
+            # Define the conditions that indicate successful resource creation
+            defaultConditions = [
+                "Ready"
+            ]
+
+            # Define the resource to be created
+            manifests = [
+                platformazurev1alpha1.XNetwork{
+                    metadata.name = "uptest-azure-network-with-dbs"
+                    spec.parameters = {
+                        id = "uptest-azure-network-with-dbs"
+                        region = "westus2"
+                        addressRange = "10.0.0.0/16"
+                        generalSubnetRange = "10.0.1.0/24"
+                        databaseSubnets = [
+                            {
+                                addressRange = "10.0.2.0/24"
+                                serviceType = "postgresql"
+                            },
+                            {
+                                addressRange = "10.0.3.0/24"
+                                serviceType = "mysql"
+                            }
+                        ]
+                        deletionPolicy = "Delete"
+                        providerConfigName = "default"
+                    }
+                }
+            ]
+
+            # Define the provider configuration
+            extraResources = [
+                azurev1beta1.ProviderConfig{
+                    metadata.name = "default"
+                    spec = {
+                        credentials = {
+                            source = "Upbound"
+                        }
+                        clientID = "bcf40abd-283c-494b-b186-03d6c864be51"
+                        tenantID = "b9925bc4-8383-4c37-b9d2-fa456d1bb1c7"
+                        subscriptionID = "038f2b7c-3265-43b8-8624-c9ad5da610a8"
+                    }
+                }
             ]
 
             # Test cleanup settings
