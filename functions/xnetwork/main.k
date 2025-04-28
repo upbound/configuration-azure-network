@@ -79,7 +79,11 @@ _base_resources = [
 _subnets_from_spec = params.databaseSubnets or []
 _database_subnets = [
     networkv1beta2.Subnet {
-        metadata = _metadata("${params.id}-db-sn-${index}")
+        metadata = _metadata("${params.id}-db-sn-${index}") | {
+            labels: {
+                "azure.platform.upbound.io/subnet-service-type" = subnet.serviceType
+            }
+        }
         spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2SubnetSpec {
             forProvider = {
                 addressPrefixes = [subnet.addressRange]

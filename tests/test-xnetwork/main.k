@@ -374,6 +374,7 @@ _items = [
                     metadata.name = "ref-azure-network-from-xr-db-sn-0"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
+                        "azure.platform.upbound.io/subnet-service-type" = "postgresql"
                     }
                     spec.forProvider = {
                         addressPrefixes = ["10.0.2.0/24"]
@@ -401,6 +402,7 @@ _items = [
                     metadata.name = "ref-azure-network-from-xr-db-sn-1"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
+                        "azure.platform.upbound.io/subnet-service-type" = "mysql"
                     }
                     spec.forProvider = {
                         addressPrefixes = ["10.0.3.0/24"]
