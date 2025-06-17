@@ -10,6 +10,6 @@ spec:
     generalSubnetRange: 10.0.1.0/24
     databaseSubnets:
       - addressRange: 10.0.2.0/24
-        serviceType: postgresql
+        serviceType: postgres
     deletionPolicy: Delete
     providerConfigName: default

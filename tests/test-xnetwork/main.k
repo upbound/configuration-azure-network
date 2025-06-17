@@ -19,7 +19,7 @@ _items = [
                         databaseSubnets = [
                             {
                                 addressRange = "10.0.2.0/24"
-                                serviceType = "postgresql"
+                                serviceType = "postgres"
                             }
                         ]
                         deletionPolicy = "Delete"
@@ -83,7 +83,7 @@ _items = [
                     metadata.name = "ref-azure-network-from-xr-db-sn-0"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
-                        "azure.platform.upbound.io/subnet-service-type" = "postgresql"
+                        "azure.platform.upbound.io/subnet-service-type" = "postgres"
                     }
                     spec.forProvider = {
                         addressPrefixes = ["10.0.2.0/24"]
@@ -311,7 +311,7 @@ _items = [
                         databaseSubnets = [
                             {
                                 addressRange = "10.0.2.0/24"
-                                serviceType = "postgresql"
+                                serviceType = "postgres"
                             },
                             {
                                 addressRange = "10.0.3.0/24"
@@ -378,7 +378,7 @@ _items = [
                     metadata.name = "ref-azure-network-from-xr-db-sn-0"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
-                        "azure.platform.upbound.io/subnet-service-type" = "postgresql"
+                        "azure.platform.upbound.io/subnet-service-type" = "postgres"
                     }
                     spec.forProvider = {
                         addressPrefixes = ["10.0.2.0/24"]

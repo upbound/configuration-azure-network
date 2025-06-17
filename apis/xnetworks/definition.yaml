@@ -47,7 +47,7 @@ spec:
                         serviceType:
                           type: string
                           description: Type of database service to use (postgresql or mysql)
-                          enum: ["postgresql", "mysql"]
+                          enum: ["postgres", "mysql"]
                       required:
                         - addressRange
                         - serviceType
