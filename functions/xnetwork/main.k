@@ -59,7 +59,11 @@ _base_resources = [
 
     # Subnet for general use
     networkv1beta2.Subnet {
-        metadata = _metadata("${params.id}-sn")
+        metadata = _metadata("${params.id}-sn") | {
+            labels: {
+                "azure.platform.upbound.io/subnet-service-type" = "general"
+            }
+        }
         spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2SubnetSpec {
             forProvider = {
                 addressPrefixes = [params.generalSubnetRange]
