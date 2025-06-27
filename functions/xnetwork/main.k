@@ -95,7 +95,7 @@ _database_subnets = [
                     name = "fs"
                     serviceDelegation = {
                         actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
-                        name = "Microsoft.DBforPostgreSQL/flexibleServers" if subnet.serviceType == "postgresql" else "Microsoft.DBforMySQL/flexibleServers"
+                        name = "Microsoft.DBforPostgreSQL/flexibleServers" if subnet.serviceType == "postgres" else "Microsoft.DBforMySQL/flexibleServers"
                     }
                 }]
                 resourceGroupNameSelector = {
