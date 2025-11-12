@@ -1,15 +1,15 @@
 import models.io.upbound.platform.azure.v1alpha1 as platformazurev1alpha1
-import models.io.upbound.azure.v1beta1 as azurev1beta1
-import models.io.upbound.azure.network.v1beta2 as networkv1beta2
+import models.io.upbound.azurem.v1beta1 as azurev1beta1
+import models.io.upbound.azurem.network.v1beta1 as networkv1beta1
 import models.io.upbound.dev.meta.v1alpha1 as metav1alpha1
 
 _items = [
     metav1alpha1.CompositionTest{
-        metadata.name = "test-xnetwork-with-postgresql-db"
+        metadata.name = "test-network-with-postgresql-db"
         spec = {
             assertResources: [
-                # The XNetwork composite resource
-                platformazurev1alpha1.XNetwork{
+                # The Network composite resource
+                platformazurev1alpha1.Network{
                     metadata.name = "ref-azure-network"
                     spec.parameters = {
                         id = "ref-azure-network-from-xr"
@@ -22,7 +22,7 @@ _items = [
                                 serviceType = "postgres"
                             }
                         ]
-                        deletionPolicy = "Delete"
+                        managementPolicies = ["*"]
                         providerConfigName = "default"
                     }
                 }
@@ -36,12 +36,15 @@ _items = [
                     spec.forProvider = {
                         location = "westus"
                     }
-                    spec.deletionPolicy = "Delete"
-                    spec.providerConfigRef.name = "default"
+                    spec.managementPolicies = ["*"]
+                    spec.providerConfigRef = {
+                        kind = "ProviderConfig"
+                        name = "default"
+                    }
                 }
 
                 # Virtual Network
-                networkv1beta2.VirtualNetwork{
+                networkv1beta1.VirtualNetwork{
                     metadata.name = "ref-azure-network-from-xr-vnet"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
@@ -53,12 +56,15 @@ _items = [
                             matchControllerRef = True
                         }
                     }
-                    spec.deletionPolicy = "Delete"
-                    spec.providerConfigRef.name = "default"
+                    spec.managementPolicies = ["*"]
+                    spec.providerConfigRef = {
+                        kind = "ProviderConfig"
+                        name = "default"
+                    }
                 }
 
                 # General Subnet
-                networkv1beta2.Subnet{
+                networkv1beta1.Subnet{
                     metadata.name = "ref-azure-network-from-xr-sn"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
@@ -74,12 +80,15 @@ _items = [
                             matchControllerRef = True
                         }
                     }
-                    spec.deletionPolicy = "Delete"
-                    spec.providerConfigRef.name = "default"
+                    spec.managementPolicies = ["*"]
+                    spec.providerConfigRef = {
+                        kind = "ProviderConfig"
+                        name = "default"
+                    }
                 }
 
                 # Database Subnet with PostgreSQL delegation
-                networkv1beta2.Subnet{
+                networkv1beta1.Subnet{
                     metadata.name = "ref-azure-network-from-xr-db-sn-0"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
@@ -102,23 +111,26 @@ _items = [
                             matchControllerRef = True
                         }
                     }
-                    spec.deletionPolicy = "Delete"
-                    spec.providerConfigRef.name = "default"
+                    spec.managementPolicies = ["*"]
+                    spec.providerConfigRef = {
+                        kind = "ProviderConfig"
+                        name = "default"
+                    }
                 }
             ]
-            compositionPath = "apis/xnetworks/composition.yaml"
+            compositionPath = "apis/networks/composition.yaml"
             xrPath = "examples/network-xr-with-pg-db.yaml"
-            xrdPath = "apis/xnetworks/definition.yaml"
+            xrdPath = "apis/networks/definition.yaml"
             timeoutSeconds = 120
             validate = False
         }
     },
     metav1alpha1.CompositionTest{
-        metadata.name = "test-xnetwork-with-mysql-db"
+        metadata.name = "test-network-with-mysql-db"
         spec = {
             assertResources: [
-                # The XNetwork composite resource
-                platformazurev1alpha1.XNetwork{
+                # The Network composite resource
+                platformazurev1alpha1.Network{
                     metadata.name = "ref-azure-network"
                     spec.parameters = {
                         id = "ref-azure-network-from-xr"
@@ -131,7 +143,7 @@ _items = [
                                 serviceType = "mysql"
                             }
                         ]
-                        deletionPolicy = "Delete"
+                        managementPolicies = ["*"]
                         providerConfigName = "default"
                     }
                 }
@@ -145,12 +157,15 @@ _items = [
                     spec.forProvider = {
                         location = "westus"
                     }
-                    spec.deletionPolicy = "Delete"
-                    spec.providerConfigRef.name = "default"
+                    spec.managementPolicies = ["*"]
+                    spec.providerConfigRef = {
+                        kind = "ProviderConfig"
+                        name = "default"
+                    }
                 }
 
                 # Virtual Network
-                networkv1beta2.VirtualNetwork{
+                networkv1beta1.VirtualNetwork{
                     metadata.name = "ref-azure-network-from-xr-vnet"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
@@ -162,12 +177,15 @@ _items = [
                             matchControllerRef = True
                         }
                     }
-                    spec.deletionPolicy = "Delete"
-                    spec.providerConfigRef.name = "default"
+                    spec.managementPolicies = ["*"]
+                    spec.providerConfigRef = {
+                        kind = "ProviderConfig"
+                        name = "default"
+                    }
                 }
 
                 # General Subnet
-                networkv1beta2.Subnet{
+                networkv1beta1.Subnet{
                     metadata.name = "ref-azure-network-from-xr-sn"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
@@ -183,12 +201,15 @@ _items = [
                             matchControllerRef = True
                         }
                     }
-                    spec.deletionPolicy = "Delete"
-                    spec.providerConfigRef.name = "default"
+                    spec.managementPolicies = ["*"]
+                    spec.providerConfigRef = {
+                        kind = "ProviderConfig"
+                        name = "default"
+                    }
                 }
 
                 # Database Subnet with MySQL delegation
-                networkv1beta2.Subnet{
+                networkv1beta1.Subnet{
                     metadata.name = "ref-azure-network-from-xr-db-sn-0"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
@@ -211,30 +232,33 @@ _items = [
                             matchControllerRef = True
                         }
                     }
-                    spec.deletionPolicy = "Delete"
-                    spec.providerConfigRef.name = "default"
+                    spec.managementPolicies = ["*"]
+                    spec.providerConfigRef = {
+                        kind = "ProviderConfig"
+                        name = "default"
+                    }
                 }
             ]
-            compositionPath = "apis/xnetworks/composition.yaml"
+            compositionPath = "apis/networks/composition.yaml"
             xrPath = "examples/network-xr-with-mysql-db.yaml"
-            xrdPath = "apis/xnetworks/definition.yaml"
+            xrdPath = "apis/networks/definition.yaml"
             timeoutSeconds = 120
             validate = False
         }
     },
     metav1alpha1.CompositionTest{
-        metadata.name = "test-xnetwork-without-db"
+        metadata.name = "test-network-without-db"
         spec = {
             assertResources: [
-                # The XNetwork composite resource
-                platformazurev1alpha1.XNetwork{
+                # The Network composite resource
+                platformazurev1alpha1.Network{
                     metadata.name = "ref-azure-network"
                     spec.parameters = {
                         id = "ref-azure-network-from-xr"
                         region = "westus"
                         addressRange = "10.0.0.0/16"
                         generalSubnetRange = "10.0.1.0/24"
-                        deletionPolicy = "Delete"
+                        managementPolicies = ["*"]
                         providerConfigName = "default"
                     }
                 }
@@ -248,12 +272,15 @@ _items = [
                     spec.forProvider = {
                         location = "westus"
                     }
-                    spec.deletionPolicy = "Delete"
-                    spec.providerConfigRef.name = "default"
+                    spec.managementPolicies = ["*"]
+                    spec.providerConfigRef = {
+                        kind = "ProviderConfig"
+                        name = "default"
+                    }
                 }
 
                 # Virtual Network
-                networkv1beta2.VirtualNetwork{
+                networkv1beta1.VirtualNetwork{
                     metadata.name = "ref-azure-network-from-xr-vnet"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
@@ -265,12 +292,15 @@ _items = [
                             matchControllerRef = True
                         }
                     }
-                    spec.deletionPolicy = "Delete"
-                    spec.providerConfigRef.name = "default"
+                    spec.managementPolicies = ["*"]
+                    spec.providerConfigRef = {
+                        kind = "ProviderConfig"
+                        name = "default"
+                    }
                 }
 
                 # General Subnet
-                networkv1beta2.Subnet{
+                networkv1beta1.Subnet{
                     metadata.name = "ref-azure-network-from-xr-sn"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
@@ -285,23 +315,26 @@ _items = [
                             matchControllerRef = True
                         }
                     }
-                    spec.deletionPolicy = "Delete"
-                    spec.providerConfigRef.name = "default"
+                    spec.managementPolicies = ["*"]
+                    spec.providerConfigRef = {
+                        kind = "ProviderConfig"
+                        name = "default"
+                    }
                 }
             ]
-            compositionPath = "apis/xnetworks/composition.yaml"
+            compositionPath = "apis/networks/composition.yaml"
             xrPath = "examples/network-xr.yaml"
-            xrdPath = "apis/xnetworks/definition.yaml"
+            xrdPath = "apis/networks/definition.yaml"
             timeoutSeconds = 120
             validate = False
         }
     },
     metav1alpha1.CompositionTest{
-        metadata.name = "test-xnetwork-with-multiple-dbs"
+        metadata.name = "test-network-with-multiple-dbs"
         spec = {
             assertResources: [
-                # The XNetwork composite resource
-                platformazurev1alpha1.XNetwork{
+                # The Network composite resource
+                platformazurev1alpha1.Network{
                     metadata.name = "ref-azure-network"
                     spec.parameters = {
                         id = "ref-azure-network-from-xr"
@@ -318,7 +351,7 @@ _items = [
                                 serviceType = "mysql"
                             }
                         ]
-                        deletionPolicy = "Delete"
+                        managementPolicies = ["*"]
                         providerConfigName = "default"
                     }
                 }
@@ -332,12 +365,15 @@ _items = [
                     spec.forProvider = {
                         location = "westus"
                     }
-                    spec.deletionPolicy = "Delete"
-                    spec.providerConfigRef.name = "default"
+                    spec.managementPolicies = ["*"]
+                    spec.providerConfigRef = {
+                        kind = "ProviderConfig"
+                        name = "default"
+                    }
                 }
 
                 # Virtual Network
-                networkv1beta2.VirtualNetwork{
+                networkv1beta1.VirtualNetwork{
                     metadata.name = "ref-azure-network-from-xr-vnet"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
@@ -349,12 +385,15 @@ _items = [
                             matchControllerRef = True
                         }
                     }
-                    spec.deletionPolicy = "Delete"
-                    spec.providerConfigRef.name = "default"
+                    spec.managementPolicies = ["*"]
+                    spec.providerConfigRef = {
+                        kind = "ProviderConfig"
+                        name = "default"
+                    }
                 }
 
                 # General Subnet
-                networkv1beta2.Subnet{
+                networkv1beta1.Subnet{
                     metadata.name = "ref-azure-network-from-xr-sn"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
@@ -369,12 +408,15 @@ _items = [
                             matchControllerRef = True
                         }
                     }
-                    spec.deletionPolicy = "Delete"
-                    spec.providerConfigRef.name = "default"
+                    spec.managementPolicies = ["*"]
+                    spec.providerConfigRef = {
+                        kind = "ProviderConfig"
+                        name = "default"
+                    }
                 }
 
                 # Database Subnet with PostgreSQL delegation
-                networkv1beta2.Subnet{
+                networkv1beta1.Subnet{
                     metadata.name = "ref-azure-network-from-xr-db-sn-0"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
@@ -397,12 +439,15 @@ _items = [
                             matchControllerRef = True
                         }
                     }
-                    spec.deletionPolicy = "Delete"
-                    spec.providerConfigRef.name = "default"
+                    spec.managementPolicies = ["*"]
+                    spec.providerConfigRef = {
+                        kind = "ProviderConfig"
+                        name = "default"
+                    }
                 }
 
                 # Database Subnet with MySQL delegation
-                networkv1beta2.Subnet{
+                networkv1beta1.Subnet{
                     metadata.name = "ref-azure-network-from-xr-db-sn-1"
                     metadata.labels = {
                         "azure.platform.upbound.io/network-id" = "ref-azure-network-from-xr"
@@ -425,13 +470,16 @@ _items = [
                             matchControllerRef = True
                         }
                     }
-                    spec.deletionPolicy = "Delete"
-                    spec.providerConfigRef.name = "default"
+                    spec.managementPolicies = ["*"]
+                    spec.providerConfigRef = {
+                        kind = "ProviderConfig"
+                        name = "default"
+                    }
                 }
             ]
-            compositionPath = "apis/xnetworks/composition.yaml"
+            compositionPath = "apis/networks/composition.yaml"
             xrPath = "examples/network-xr-with-multiple-dbs.yaml"
-            xrdPath = "apis/xnetworks/definition.yaml"
+            xrdPath = "apis/networks/definition.yaml"
             timeoutSeconds = 120
             validate = False
         }

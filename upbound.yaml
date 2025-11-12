@@ -1,14 +1,19 @@
-apiVersion: meta.dev.upbound.io/v1alpha1
+apiVersion: meta.dev.upbound.io/v2alpha1
 kind: Project
 metadata:
   name: configuration-azure-network
 spec:
   dependsOn:
-  - provider: xpkg.upbound.io/upbound/provider-azure-network
-    version: v1
-  - function: xpkg.upbound.io/crossplane-contrib/function-auto-ready
+  - apiVersion: pkg.crossplane.io/v1
+    kind: Provider
+    package: xpkg.upbound.io/upbound/provider-azure-network
+    version: v2
+  - apiVersion: pkg.crossplane.io/v1
+    kind: Function
+    package: xpkg.upbound.io/crossplane-contrib/function-auto-ready
     version: '>=v0.0.0'
-  description: This configuration provides a foundation to build and operate Azure networks.
+  description: This configuration provides a foundation to build and operate Azure
+    networks.
   license: Apache-2.0
   maintainer: Upbound <support@upbound.io>
   readme: |

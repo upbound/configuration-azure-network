@@ -12,17 +12,17 @@ The core components of a custom API in [Upbound Project](https://docs.upbound.io
 
 In this specific configuration, the API contains:
 
-- **an [Azure Network](/apis/xnetworks/definition.yaml) custom resource type.**
-- **Composition:** Configured in [/apis/xnetworks/composition.yaml](/apis/xnetworks/composition.yaml),
-- **Embedded Function:**  The Composition logic is encapuslated within [embedded function](/functions/xnetwork/main.k)
+- **an [Azure Network](/apis/networks/definition.yaml) custom resource type.**
+- **Composition:** Configured in [/apis/networks/composition.yaml](/apis/networks/composition.yaml),
+- **Embedded Function:**  The Composition logic is encapuslated within [embedded function](/functions/network/main.k)
 
 ## Testing
 
 The configuration can be tested using:
 
-- `up composition render --xrd=apis/xnetworks/definition.yaml apis/xnetworks/composition.yaml examples/network-xr.yaml` to render the composition
-- `up test run tests/*` to run composition tests in `tests/test-xnetwork/`
-- `up test run tests/* --e2e` to run end-to-end tests in `tests/e2etest-xnetwork/`
+- `up composition render --xrd=apis/networks/definition.yaml apis/networks/composition.yaml examples/network-xr.yaml` to render the composition
+- `up test run tests/*` to run composition tests in `tests/test-network/`
+- `up test run tests/* --e2e` to run end-to-end tests in `tests/e2etest-network/`
 
 ## Deployment
 
