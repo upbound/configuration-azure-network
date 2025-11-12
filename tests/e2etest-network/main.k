@@ -1,14 +1,16 @@
 import models.io.upbound.platform.azure.v1alpha1 as platformazurev1alpha1
-import models.io.upbound.azure.v1beta1 as azurev1beta1
+import models.io.upbound.azurem.v1beta1 as azurev1beta1
 import models.io.upbound.dev.meta.v1alpha1 as metav1alpha1
-import file
 
 _items = [
     metav1alpha1.E2ETest{
-        metadata.name = "xnetwork-azure"
+        metadata.name = "network-azure"
         spec = {
             # Configure Crossplane for the test environment
-            crossplane.autoUpgrade.channel = "Rapid"
+            crossplane = {
+                version = "2.0.2-up.5"
+                autoUpgrade.channel = "Rapid"
+            }
 
             # Define the conditions that indicate successful resource creation
             defaultConditions = [
@@ -17,14 +19,17 @@ _items = [
 
             # Define the resource to be created
             manifests = [
-                platformazurev1alpha1.XNetwork{
-                    metadata.name = "uptest-azure-network"
+                platformazurev1alpha1.Network{
+                    metadata = {
+                        name = "uptest-azure-network"
+                        namespace = "default"
+                    }
                     spec.parameters = {
                         id = "uptest-azure-network"
                         region = "westus2"
                         addressRange = "10.0.0.0/16"
                         generalSubnetRange = "10.0.1.0/24"
-                        deletionPolicy = "Delete"
+                        managementPolicies = ["*"]
                         providerConfigName = "default"
                     }
                 }
@@ -33,7 +38,10 @@ _items = [
             # Define the provider configuration
             extraResources = [
                 azurev1beta1.ProviderConfig{
-                    metadata.name = "default"
+                    metadata = {
+                        name = "default"
+                        namespace = "default"
+                    }
                     spec = {
                         credentials = {
                             source = "Upbound"
@@ -53,10 +61,13 @@ _items = [
         }
     },
     metav1alpha1.E2ETest{
-        metadata.name = "xnetwork-azure-with-dbs"
+        metadata.name = "network-azure-with-dbs"
         spec = {
             # Configure Crossplane for the test environment
-            crossplane.autoUpgrade.channel = "Rapid"
+            crossplane = {
+                version = "2.0.2-up.5"
+                autoUpgrade.channel = "Rapid"
+            }
 
             # Define the conditions that indicate successful resource creation
             defaultConditions = [
@@ -65,8 +76,11 @@ _items = [
 
             # Define the resource to be created
             manifests = [
-                platformazurev1alpha1.XNetwork{
-                    metadata.name = "uptest-azure-network-with-dbs"
+                platformazurev1alpha1.Network{
+                    metadata = {
+                        name = "uptest-azure-network-with-dbs"
+                        namespace = "default"
+                    }
                     spec.parameters = {
                         id = "uptest-azure-network-with-dbs"
                         region = "westus2"
@@ -82,7 +96,7 @@ _items = [
                                 serviceType = "mysql"
                             }
                         ]
-                        deletionPolicy = "Delete"
+                        managementPolicies = ["*"]
                         providerConfigName = "default"
                     }
                 }
@@ -91,7 +105,10 @@ _items = [
             # Define the provider configuration
             extraResources = [
                 azurev1beta1.ProviderConfig{
-                    metadata.name = "default"
+                    metadata = {
+                        name = "default"
+                        namespace = "default"
+                    }
                     spec = {
                         credentials = {
                             source = "Upbound"

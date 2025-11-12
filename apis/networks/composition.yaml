@@ -1,16 +1,16 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: xnetworks.azure.platform.upbound.io
+  name: networks.azure.platform.upbound.io
 spec:
   compositeTypeRef:
     apiVersion: azure.platform.upbound.io/v1alpha1
-    kind: XNetwork
+    kind: Network
   mode: Pipeline
   pipeline:
   - functionRef:
-      name: upbound-configuration-azure-networkxnetwork
-    step: xnetwork
+      name: upbound-configuration-azure-networknetwork
+    step: network
   - functionRef:
       name: crossplane-contrib-function-auto-ready
     step: crossplane-contrib-function-auto-ready

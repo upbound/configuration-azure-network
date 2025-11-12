@@ -1,12 +1,11 @@
-import models.io.upbound.azure.network.v1beta1 as networkv1beta1
-import models.io.upbound.azure.network.v1beta2 as networkv1beta2
-import models.io.upbound.azure.v1alpha1 as azurev1alpha1
-import models.io.upbound.azure.v1beta1 as azurev1beta1
+import models.io.upbound.azurem.network.v1beta1 as networkv1beta1
+import models.io.upbound.azurem.v1alpha1 as azurev1alpha1
+import models.io.upbound.azurem.v1beta1 as azurev1beta1
 import models.io.upbound.platform.azure.v1alpha1 as platformazurev1alpha1
 import models.k8s.apimachinery.pkg.apis.meta.v1 as metav1
 
 # observed composite resource
-oxr = platformazurev1alpha1.XNetwork{**option("params").oxr}
+oxr = platformazurev1alpha1.Network{**option("params").oxr}
 params = oxr.spec.parameters
 # observed composed resources
 _ocds = option("params").ocds
@@ -26,8 +25,11 @@ _metadata = lambda name: str -> any {
 # Helper function to add common spec fields
 _add_common_spec_fields = lambda spec: any -> any {
     spec | {
-        deletionPolicy = params.deletionPolicy
-        providerConfigRef.name = params.providerConfigName
+        managementPolicies = params.managementPolicies or ["*"]
+        providerConfigRef = {
+            kind = "ProviderConfig"
+            name = params.providerConfigName
+        }
     }
 }
 
@@ -36,7 +38,7 @@ _base_resources = [
     # Resource Group
     azurev1beta1.ResourceGroup {
         metadata = _metadata("${params.id}-rg")
-        spec = _add_common_spec_fields(azurev1beta1.AzureUpboundIoV1beta1ResourceGroupSpec {
+        spec = _add_common_spec_fields(azurev1beta1.AzuremUpboundIoV1beta1ResourceGroupSpec {
             forProvider = {
                 location = params.region
             }
@@ -44,9 +46,9 @@ _base_resources = [
     }
 
     # Virtual Network
-    networkv1beta2.VirtualNetwork {
+    networkv1beta1.VirtualNetwork {
         metadata = _metadata("${params.id}-vnet")
-        spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2VirtualNetworkSpec {
+        spec = _add_common_spec_fields(networkv1beta1.NetworkAzuremUpboundIoV1beta1VirtualNetworkSpec {
             forProvider = {
                 location = params.region
                 addressSpace = [params.addressRange]
@@ -58,13 +60,13 @@ _base_resources = [
     }
 
     # Subnet for general use
-    networkv1beta2.Subnet {
+    networkv1beta1.Subnet {
         metadata = _metadata("${params.id}-sn") | {
             labels: {
                 "azure.platform.upbound.io/subnet-service-type" = "general"
             }
         }
-        spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2SubnetSpec {
+        spec = _add_common_spec_fields(networkv1beta1.NetworkAzuremUpboundIoV1beta1SubnetSpec {
             forProvider = {
                 addressPrefixes = [params.generalSubnetRange]
                 resourceGroupNameSelector = {
@@ -82,13 +84,13 @@ _base_resources = [
 # Database subnets (optional)
 _subnets_from_spec = params.databaseSubnets or []
 _database_subnets = [
-    networkv1beta2.Subnet {
+    networkv1beta1.Subnet {
         metadata = _metadata("${params.id}-db-sn-${index}") | {
             labels: {
                 "azure.platform.upbound.io/subnet-service-type" = subnet.serviceType
             }
         }
-        spec = _add_common_spec_fields(networkv1beta2.NetworkAzureUpboundIoV1beta2SubnetSpec {
+        spec = _add_common_spec_fields(networkv1beta1.NetworkAzuremUpboundIoV1beta1SubnetSpec {
             forProvider = {
                 addressPrefixes = [subnet.addressRange]
                 delegation = [{
