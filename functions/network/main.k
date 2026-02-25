@@ -5,8 +5,12 @@ import models.io.upbound.platform.azure.v1alpha1 as platformazurev1alpha1
 import models.k8s.apimachinery.pkg.apis.meta.v1 as metav1
 
 # observed composite resource
-oxr = platformazurev1alpha1.Network{**option("params").oxr}
-params = oxr.spec.parameters
+# Note: avoid casting the full OXR (e.g. Network{**oxr}) because the
+# auto-generated model types status.conditions as a typed list which is
+# incompatible with the generic list Crossplane passes at runtime.
+# Instead, keep the raw OXR and cast only the sub-fields we need.
+oxr = option("params").oxr
+params = platformazurev1alpha1.Network.spec.parameters{**oxr.spec.parameters}
 # observed composed resources
 _ocds = option("params").ocds
 # desired composite resource
