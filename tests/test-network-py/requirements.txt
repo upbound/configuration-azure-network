@@ -1,0 +1,1 @@
+from model.io.upbound.dev.meta.compositiontest import v1alpha1 as compositiontest
