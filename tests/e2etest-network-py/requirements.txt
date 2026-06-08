@@ -1,0 +1,1 @@
+from model.io.upbound.dev.meta.e2etest import v1alpha1 as e2etest
