@@ -1,7 +1,8 @@
 apiVersion: azure.platform.upbound.io/v1alpha1
-kind: XNetwork
+kind: Network
 metadata:
   name: ref-azure-network
+  namespace: default
 spec:
   parameters:
     id: ref-azure-network-from-xr
@@ -13,3 +14,5 @@ spec:
         serviceType: postgres
       - addressRange: 10.0.3.0/24
         serviceType: mysql
+    managementPolicies: ["*"]
+    providerConfigName: default

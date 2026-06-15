@@ -1,7 +1,8 @@
 apiVersion: azure.platform.upbound.io/v1alpha1
-kind: XNetwork
+kind: Network
 metadata:
   name: ref-azure-network
+  namespace: default
 spec:
   parameters:
     id: ref-azure-network-from-xr
@@ -11,5 +12,5 @@ spec:
     databaseSubnets:
       - addressRange: 10.0.2.0/24
         serviceType: postgres
-    deletionPolicy: Delete
+    managementPolicies: ["*"]
     providerConfigName: default

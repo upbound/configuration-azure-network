@@ -1,23 +1,24 @@
-apiVersion: apiextensions.crossplane.io/v1
+apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
-  name: xnetworks.azure.platform.upbound.io
+  name: networks.azure.platform.upbound.io
 spec:
+  scope: Namespaced
   group: azure.platform.upbound.io
   names:
     categories:
     - crossplane
-    kind: XNetwork
-    plural: xnetworks
+    kind: Network
+    plural: networks
   versions:
   - name: v1alpha1
     referenceable: true
     schema:
       openAPIV3Schema:
-        description: XNetwork is the Schema for the XNetwork API.
+        description: Network is the Schema for the Network API.
         properties:
           spec:
-            description: XNetworkSpec defines the desired state of XNetwork.
+            description: NetworkSpec defines the desired state of Network.
             properties:
               parameters:
                 properties:
@@ -51,26 +52,32 @@ spec:
                       required:
                         - addressRange
                         - serviceType
-                  deletionPolicy:
-                    description: Delete the external resources when the Claim/XR is deleted. Defaults to Delete
-                    enum:
-                    - Delete
-                    - Orphan
-                    type: string
-                    default: Delete
+                  managementPolicies:
+                    description: ManagementPolicies for Azure Network resources. Defaults to ["*"] which includes all operations (Create, Observe, Update, Delete, LateInitialize). To orphan resources on deletion, use ["Create", "Observe", "Update", "LateInitialize"].
+                    type: array
+                    items:
+                      type: string
+                      enum:
+                        - "*"
+                        - Create
+                        - Observe
+                        - Update
+                        - Delete
+                        - LateInitialize
+                    default: ["*"]
                   providerConfigName:
                     description: Crossplane ProviderConfig to use for provisioning this resources
                     type: string
                     default: default
                 required:
-                - deletionPolicy
+                - managementPolicies
                 - providerConfigName
                 - id
                 - region
                 type: object
             type: object
           status:
-            description: XNetworkStatus defines the observed state of XNetwork.
+            description: NetworkStatus defines the observed state of Network.
             type: object
         required:
         - spec
