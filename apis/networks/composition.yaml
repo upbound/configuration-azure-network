@@ -9,8 +9,8 @@ spec:
   mode: Pipeline
   pipeline:
   - functionRef:
-      name: upbound-configuration-azure-networknetwork-python
-    step: network-python
+      name: upbound-configuration-azure-networknetwork
+    step: network
   - functionRef:
       name: crossplane-contrib-function-auto-ready
     step: crossplane-contrib-function-auto-ready
